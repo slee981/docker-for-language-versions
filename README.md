@@ -38,12 +38,23 @@ WORKDIR /usr/src
 COPY requirements.txt .
 COPY ./.bashrc /root/.bashrc
 
+# this base python:3.9-buster images is itself 
+# built on top of a Debian based Linux image 
+# so we update, upgrade, and install vim
+RUN apt update && \
+	apt -y upgrade && \ 
+	apt install -y vim 
+
 # install any libraries you need
 RUN pip install -r requirements.txt
 
 # open up a bash shell
 CMD ["bash"]
 ```
+
+Quick note: Docker is built in layers, so the reason we separate out the `RUN` command that updates the operating system and installs vim from the `RUN` command the installs Python packages is that we may in the future want to add some Python packages. This ordering ensurs that the build will only need to redo that particlar layer (i.e. step), and not the entire thing. Alternatively, if we are unsure of what pacakges we want in this Docker environment, we could list each pip install on a separate `RUN` layer (appended to the bottom, always just before the `CMD` layer). This will ensure quicker builds in the future. 
+
+Here is a link to [best practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)  for creating a `Dockerfile`, and here is a link to [Python's page on Docker Hub](https://hub.docker.com/_/python). You can find other versions of Python here, or explore other images to build upon.
 
 ### Build Dockerfile 
 
